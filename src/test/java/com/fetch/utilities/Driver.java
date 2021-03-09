@@ -16,6 +16,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 public class Driver {
 
@@ -35,6 +36,7 @@ public class Driver {
                 case "chrome":
                     WebDriverManager.chromedriver().setup();
                     driverPool.set(new ChromeDriver());
+                    driverPool.get().manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS); 
                     break;
                 case "chrome_headless":
                     WebDriverManager.chromedriver().setup();
@@ -93,7 +95,7 @@ public class Driver {
             }
         }
         //return corresponded to thread id webdriver object
-        return driverPool.get();
+        return driverPool.get(); 
     }
     public static void close() {
         driverPool.get().quit();
