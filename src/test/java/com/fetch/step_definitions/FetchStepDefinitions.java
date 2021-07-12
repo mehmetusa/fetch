@@ -11,19 +11,19 @@ public class FetchStepDefinitions {
 
 	@Given("user is on the page")
 	public void user_is_on_the_login_page() {
-		System.out.println("I am on the Fetch page");
+		//System.out.println("I am on the Fetch page");
 		Driver.get().get(ConfigurationReader.getProperty("url"));
 	}
 
 	@Then("user finds the best algorithm to find the fake gold bar")
 	public void userFindsTheBestAlgorithmToFindTheFakeGoldBar() throws InterruptedException {
-		System.out.println("user finds the best algorithm to find the fake gold bar");
+	//	System.out.println("user finds the best algorithm to find the fake gold bar");
 		fetchPage.userFindsTheBestAlgorithmToFindTheFakeGoldBar();
 	}
 
 	@Then("user verify result and close the browser")
 	public void user_verify_result_and_close_the_browser() throws InterruptedException {
-		System.out.println("user verify result and close the browser");
+	//	System.out.println("user verify result and close the browser");
 		FetchPage.user_verify_result_and_close_the_browser();
 	}
 }

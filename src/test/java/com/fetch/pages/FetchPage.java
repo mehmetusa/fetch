@@ -1,12 +1,24 @@
 package com.fetch.pages;
 
 import static org.junit.Assert.assertEquals;
+
+import java.time.Duration;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.util.concurrent.TimeUnit;
+
 import com.fetch.utilities.Driver;
 
 public class FetchPage extends BasePage {
@@ -30,121 +42,147 @@ public class FetchPage extends BasePage {
 	@FindBy(xpath = "(//button[@id='reset'])[2]")
 	public static WebElement reset;
 
-	public static void fakeNumber(String number) {
+	@FindBy(xpath = "//input[@value !='']")
+	public List<WebElement> clear;
+
+	void fakeNumber(String number) {
+		System.out.println("number----"+number);
 		Driver.get().findElement(By.xpath("//button[@id='coin_" + number + "']")).click();
 	}
 
-	public static void leftElement(String i) {
-		Driver.get().findElement(By.id("left_" + i)).sendKeys(i);
+	void element(String i, String direction) {
+		Driver.get().findElement(By.id(direction + i)).sendKeys(i);
 	}
 
-	public static void rightElement(String i) {
-		Driver.get().findElement(By.id("right_" + i)).sendKeys(i);
-	}
+	boolean resultElement(String i,String step) throws InterruptedException {
+   		Boolean res = Driver.get().findElement(By.xpath("//li[" + step + "]")).getText().contains(i);
+		By icon = By.xpath("//li[" + results.size() + "][contains(.,'"+i+"')]");
+	    
+		WebDriverWait wait = new WebDriverWait(Driver.get(), 10);
+	    wait.until(ExpectedConditions.invisibilityOfElementWithText(icon, i));
+	//	Thread.sleep(500);
 
-	public static Boolean resultElement(String i) {
-		Boolean res = Driver.get().findElement(By.xpath("//li[" + results.size() + "]")).getText().contains(i);
 		return res;
 	}
 
-	public String userFindsTheBestAlgorithmToFindTheFakeGoldBar() {
-		int left = numbers.size() / 2;
-		int right = numbers.size() - numbers.size() / 2; // 4
-
-		for (int i = 0; i < left; i++) {
-			String i2 = i + "";
-			Driver.get().findElement(By.id("left_" + i)).sendKeys(i2);
+	
+	public String userFindsTheBestAlgorithmToFindTheFakeGoldBar() throws InterruptedException {
+		String[] left_Numbers = { "0", "1", "2", "3" };
+		String[] right_Numbers = { "5", "6", "7", "8" };
+		String LEFT_SIDE =  "left_";
+		String RIGHT_SIDE= "right_";
+		String SMALLER =  "<";
+		String BIGGER= ">";
+		String EQUAL_SYMBOL= "=";
+		
+		
+		for (String i : left_Numbers) {
+			element(i, LEFT_SIDE);
 		}
 
-		for (int i = right; i < numbers.size(); i++) {
-			String i2 = i + "";
-			Driver.get().findElement(By.id("right_" + i)).sendKeys(i2);
+		for (String i : right_Numbers) {
+			element(i, RIGHT_SIDE);
 		}
 
 		weigh.click();
-		if (result.getText().contains("=")) {
+		if (result.getText().contains(EQUAL_SYMBOL)) {
 			fakeGold = "4";
 			fakeNumber(fakeGold);
 			return fakeGold;
 		}
 
-		if (resultElement("<")) {
+		if (resultElement(SMALLER,"1")) {
 			reset.click();
-			leftElement("0");
-			leftElement("1");
-			rightElement("2");
-			rightElement("3");
+			element(left_Numbers[0], LEFT_SIDE);
+			element(left_Numbers[1], LEFT_SIDE);
+			element(left_Numbers[2], RIGHT_SIDE);
+			element(left_Numbers[3], RIGHT_SIDE);
 			weigh.click();
-			if (resultElement("<")) {
+			if (resultElement(SMALLER,"2")) {
 				reset.click();
-				leftElement("0");
-				rightElement("1");
+			
+				element(left_Numbers[0], LEFT_SIDE);
+				element(left_Numbers[1], RIGHT_SIDE);
 				weigh.click();
-				if (resultElement(">")) {
-					fakeGold = "1";
+
+				if (resultElement(SMALLER,"3")) {
+					fakeGold = left_Numbers[0];
 					fakeNumber(fakeGold);
+					System.out.println(fakeGold);
 					return fakeGold;
-				} else {
-					fakeGold = "0";
+				} 
+				if (resultElement(BIGGER,"3")){
+					fakeGold = left_Numbers[1];
 					fakeNumber(fakeGold);
+					System.out.println(fakeGold);
 					return fakeGold;
 				}
 			}
-			if (resultElement(">")) {
+			if (resultElement(BIGGER,"2")) {
 				reset.click();
-				leftElement("2");
-				rightElement("3");
+				element(left_Numbers[2], LEFT_SIDE);
+				element(left_Numbers[3], RIGHT_SIDE);
 				weigh.click();
-				if (resultElement(">")) {
-					fakeGold = "3";
+
+				if (resultElement(SMALLER,"3")) {
+					fakeGold = left_Numbers[2];
 					fakeNumber(fakeGold);
 					return fakeGold;
-				} else {
-					fakeGold = "2";
+				} 
+				if (resultElement(BIGGER,"3")){
+					fakeGold = left_Numbers[3];
 					fakeNumber(fakeGold);
 					return fakeGold;
 				}
 			}
 		}
 
-		if (resultElement(">")) {
+		if (resultElement(BIGGER,"1")) {
 			reset.click();
-			leftElement("5");
-			leftElement("6");
-			rightElement("7");
-			rightElement("8");
+			element(right_Numbers[0], LEFT_SIDE);
+			element(right_Numbers[1], LEFT_SIDE);
+			element(right_Numbers[2], RIGHT_SIDE);
+			element(right_Numbers[3], RIGHT_SIDE);
 			weigh.click();
-			if (resultElement("<")) {
+
+			if (resultElement(SMALLER,"2")) {
 				reset.click();
-				leftElement("5");
-				rightElement("6");
+				element(right_Numbers[0], LEFT_SIDE);
+				element(right_Numbers[1], RIGHT_SIDE);
 				weigh.click();
-				if (resultElement(">")) {
-					fakeGold = "6";
+
+				if (resultElement(SMALLER,"3")) {
+					fakeGold = right_Numbers[0];
 					fakeNumber(fakeGold);
 					return fakeGold;
-				} else {
-					fakeGold = "5";
+				} 
+				
+				if (resultElement(BIGGER,"3")) {
+					fakeGold =right_Numbers[1];
 					fakeNumber(fakeGold);
 					return fakeGold;
 				}
 			}
-			if (resultElement(">")) {
+			if (resultElement(BIGGER,"2")) {
 				reset.click();
-				leftElement("7");
-				rightElement("8");
+				element(right_Numbers[2], LEFT_SIDE);
+				element(right_Numbers[3], RIGHT_SIDE);
 				weigh.click();
-				if (resultElement(">")) {
-					fakeGold = "8";
+
+				if (resultElement(SMALLER,"3")) {
+					fakeGold = right_Numbers[2];
 					fakeNumber(fakeGold);
 					return fakeGold;
-				} else {
-					fakeGold = "7";
+				} 
+				if (resultElement(BIGGER,"3")) {
+					fakeGold = right_Numbers[3];
 					fakeNumber(fakeGold);
 					return fakeGold;
 				}
 			}
 		}
+		
+		System.out.println("fakeGold............."+fakeGold);
 		return fakeGold;
 	}
 
